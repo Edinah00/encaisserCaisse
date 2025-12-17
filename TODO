@@ -1,0 +1,21 @@
+Database
+
+    Cheque 
+        id_cheque
+        num_compte
+        dateValidite
+    EtatCheque 
+        id_Etat
+        etat (ok,vole , encaisser)
+
+    ChequeEtat 
+        id_cheque_etat
+        id_cheque
+        id_Etat
+        date_etat
+        benefieciaire (null aloha)
+    Mvt
+        id_mouvement
+        date_mouvement
+        type 
+        montant
