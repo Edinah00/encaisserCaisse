@@ -210,7 +210,7 @@ public static void Modify(Cheque a, ChequeEtat e) throws Exception{
         conn.setAutoCommit(false);
         ChequeDAO.update(conn,a);
         e.setId_cheque(a.getId_Cheque());
-        e.insertIntoEtat(conn,a);
+      //  e.insertIntoEtat(conn,a);
         conn.commit();
     }catch(Exception ex){
         if(conn !=null){

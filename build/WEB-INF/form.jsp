@@ -8,6 +8,18 @@
 ArrayList<EtatCheque> etat = (ArrayList<EtatCheque>) request.getAttribute("listeEtat");
 Cheque cheque = (Cheque) request.getAttribute("cheque");
 ArrayList<ChequeEtat> list =(ArrayList<ChequeEtat>)request.getAttribute("chequeEtat");
+
+Integer etatActuelId = null;
+if (cheque != null) {
+    try {
+        ChequeEtat chE = new ChequeEtat();
+        chE.setId_cheque(cheque.getId_Cheque());
+        ChequeEtatDAO.getChequeAvecIdEtat(chE);
+        etatActuelId = chE.getId_etat();
+    } catch (Exception e) {
+        // En cas d'erreur, on continue sans état sélectionné
+    }
+}
 %>
 
 <!DOCTYPE html>
@@ -23,6 +35,7 @@ ArrayList<ChequeEtat> list =(ArrayList<ChequeEtat>)request.getAttribute("chequeE
         }
         h2 {
             color: #333;
+            margin-top: 30px;
         }
         label {
             font-weight: bold;
@@ -71,7 +84,8 @@ ArrayList<ChequeEtat> list =(ArrayList<ChequeEtat>)request.getAttribute("chequeE
         }
         td input[type="number"],
         td input[type="date"],
-        td input[type="text"] {
+        td input[type="text"],
+        td select {
             width: 100%;
             margin-top: 0;
         }
@@ -94,17 +108,70 @@ ArrayList<ChequeEtat> list =(ArrayList<ChequeEtat>)request.getAttribute("chequeE
             font-size: 14px;
             margin-bottom: 5px;
         }
+        .btn-add {
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-toggle {
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+        }
         .btn-delete:hover {
             background-color: #da190b;
         }
         .btn-save:hover {
             background-color: #45a049;
         }
+        .btn-add:hover {
+            background-color: #0b7dda;
+        }
+        .btn-toggle:hover {
+            background-color: #0b7dda;
+        }
         .actions-cell {
             text-align: center;
             min-width: 100px;
         }
+        .add-form {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+            border: 2px dashed #ccc;
+            display: none;
+        }
+        .add-form.show {
+            display: block;
+        }
+        .add-form h3 {
+            margin-top: 0;
+            color: #2196F3;
+        }
     </style>
+    <script>
+        function toggleAddForm() {
+            var form = document.getElementById('addStateForm');
+            var btn = document.getElementById('toggleBtn');
+            if (form.classList.contains('show')) {
+                form.classList.remove('show');
+                btn.textContent = '➕ Ajouter un nouvel état';
+            } else {
+                form.classList.add('show');
+                btn.textContent = '❌ Annuler';
+            }
+        }
+    </script>
 </head>
 <body>
 
@@ -154,7 +221,21 @@ ArrayList<ChequeEtat> list =(ArrayList<ChequeEtat>)request.getAttribute("chequeE
 
         <label>Date limite :</label>
         <input type="date" name="date_limite" value="<%= cheque.getDate_limite() %>" required>
-
+        
+        <label>État du chèque :</label>
+        <select name="id_etat">
+            <% if (etat != null && !etat.isEmpty()) {
+                   for (EtatCheque e : etat) {
+                       boolean selected = (etatActuelId != null && etatActuelId == e.getId_etat());
+            %>
+                <option value="<%= e.getId_etat() %>" <%= selected ? "selected" : "" %>>
+                    <%= e.getNameEtat() %>
+                </option>
+            <%     }
+               } else { %>
+                <option value="">Aucun état disponible</option>
+            <% } %>
+        </select>
         <button type="submit">Modifier le chèque</button>
     </form>
 
@@ -165,7 +246,7 @@ ArrayList<ChequeEtat> list =(ArrayList<ChequeEtat>)request.getAttribute("chequeE
         <thead>
             <tr>
                 <th>ID ChequeEtat</th>
-                <th>ID État</th>
+                <th>État</th>
                 <th>Date de l'état</th>
                 <th>Bénéficiaire</th>
                 <th>Actions</th>
@@ -185,7 +266,17 @@ ArrayList<ChequeEtat> list =(ArrayList<ChequeEtat>)request.getAttribute("chequeE
                     <input type="hidden" name="id_ChequeEtat" value="<%= e.getId_ChequeEtat() %>">
                     
                     <td>
-                        <input type="number" name="id_etat" value="<%= e.getId_etat() %>" required>
+                        <select name="id_etat" required>
+                            <% if (etat != null && !etat.isEmpty()) {
+                                   for (EtatCheque et : etat) {
+                                       boolean selected = (e.getId_etat() == et.getId_etat());
+                            %>
+                                <option value="<%= et.getId_etat() %>" <%= selected ? "selected" : "" %>>
+                                    <%= et.getNameEtat() %>
+                                </option>
+                            <%     }
+                               } %>
+                        </select>
                     </td>
                     
                     <td>
@@ -219,6 +310,40 @@ ArrayList<ChequeEtat> list =(ArrayList<ChequeEtat>)request.getAttribute("chequeE
         <% } %>
         </tbody>
     </table>
+
+    <%-- BOUTON POUR AFFICHER/MASQUER LE FORMULAIRE D'AJOUT --%>
+    <button type="button" class="btn-toggle" id="toggleBtn" onclick="toggleAddForm()">
+        ➕ Ajouter un nouvel état
+    </button>
+
+    <%-- FORMULAIRE D'AJOUT D'UN NOUVEL ÉTAT (caché par défaut) --%>
+    <div class="add-form" id="addStateForm">
+        <h3>➕ Ajouter un nouvel état pour ce chèque</h3>
+        <form action="<%= request.getContextPath() %>/ChequeStatus/add" method="post">
+            <input type="hidden" name="id_cheque" value="<%= cheque.getId_Cheque() %>">
+            
+            <label>État :</label>
+            <select name="id_etat" required>
+                <option value="">-- Sélectionner un état --</option>
+                <% if (etat != null && !etat.isEmpty()) {
+                       for (EtatCheque et : etat) {
+                %>
+                    <option value="<%= et.getId_etat() %>">
+                        <%= et.getNameEtat() %>
+                    </option>
+                <%     }
+                   } %>
+            </select>
+
+            <label>Date de l'état :</label>
+            <input type="date" name="date_etat" required>
+
+            <label>Bénéficiaire :</label>
+            <input type="text" name="beneficiaire" placeholder="Nom du bénéficiaire" required>
+
+            <button type="submit" class="btn-add">Ajouter cet état</button>
+        </form>
+    </div>
 
 <% } %>
 
