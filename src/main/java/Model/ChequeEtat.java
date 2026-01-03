@@ -75,6 +75,11 @@ public class ChequeEtat {
             ps.executeUpdate();
         }
     }
+      public void insertIntoEtat(Cheque a) throws SQLException, Exception {
+        try (Connection conn = new ConnectionDB().getConnexion()) {
+            insertIntoEtat(conn, a);
+        }
+    }
 
     public void updateEtat(Connection conn) {
 

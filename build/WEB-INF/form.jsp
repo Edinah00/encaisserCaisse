@@ -165,15 +165,16 @@ if (cheque != null) {
             var btn = document.getElementById('toggleBtn');
             if (form.classList.contains('show')) {
                 form.classList.remove('show');
-                btn.textContent = '➕ Ajouter un nouvel état';
+                btn.textContent = ' Ajouter un nouvel état';
             } else {
                 form.classList.add('show');
-                btn.textContent = '❌ Annuler';
+                btn.textContent = ' Annuler';
             }
         }
     </script>
 </head>
 <body>
+<jsp:include page="navbar.jsp" />
 
 <% if (cheque == null) { %>
     <!-- FORMULAIRE D'AJOUT -->

@@ -51,7 +51,7 @@ public class MouvementDAO {
         return BigDecimal.ZERO;
     }
 public static void save(Connection conn, Mouvement m) throws SQLException {
-    String sql = "INSERT INTO mouvement (numero_compte, type, montant) VALUES (?, ?, ?)";
+    String sql = "INSERT INTO mouvement (numero_compte, type, montant ,date_mouvement) VALUES (?, ?, ? , CURRENT_DATE)";
 
     try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 

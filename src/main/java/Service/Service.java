@@ -93,7 +93,7 @@ public static boolean verifierDate(FormEncaissement a) throws Exception {
     return true; // solde suffisant
 }
 
-public static void encaisserCheque(FormEncaissement a) throws Exception {
+public void encaisserCheque(FormEncaissement a) throws Exception {
 
     ChequeEtat E = new ChequeEtat();
     Cheque cheque = new Cheque();
@@ -149,14 +149,14 @@ public static void encaisserCheque(FormEncaissement a) throws Exception {
 
         // UPDATE CHEQUE_ETAT (OK → ENCAISSÉ)
         String sqlEtat = """
-            UPDATE ChequeEtat 
-            SET id_etat = 3, beneficiaire = ?
-            WHERE id_cheque = ? AND id_etat = 1
+           INSERT INTO ChequeEtat (id_cheque, id_etat, beneficiaire, date_etat)
+    VALUES (?,?,?, CURRENT_DATE)
         """;
 
         try (PreparedStatement ps = conn.prepareStatement(sqlEtat)) {
-            ps.setString(1, a.getNom_beneficiaire());
-            ps.setInt(2, cheque.getId_Cheque());
+            ps.setInt(1, cheque.getId_Cheque());
+            ps.setInt(2,3);
+            ps.setString(3, a.getNom_beneficiaire());
             ps.executeUpdate();
         }
 

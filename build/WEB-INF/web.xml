@@ -21,6 +21,20 @@
         <servlet-name>ChequeStatusServlet</servlet-name>
         <url-pattern>/ChequeStatus/*</url-pattern>
     </servlet-mapping>
-    
-
+    <servlet>
+        <servlet-name>MouvementServlet</servlet-name>
+        <servlet-class>Servlet.MouvementServlet</servlet-class>
+    </servlet>
+     <servlet-mapping>
+        <servlet-name>MouvementServlet</servlet-name>
+        <url-pattern>/Mouvement/*</url-pattern>
+    </servlet-mapping>
+   <servlet>
+        <servlet-name>EncaissementServlet</servlet-name>
+        <servlet-class>Servlet.EncaissementServlet</servlet-class>
+    </servlet>
+     <servlet-mapping>
+        <servlet-name>EncaissementServlet</servlet-name>
+        <url-pattern>/Encaissement/*</url-pattern>
+    </servlet-mapping>
     </web-app>
