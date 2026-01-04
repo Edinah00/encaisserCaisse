@@ -83,3 +83,18 @@ VALUES
 ('ACC74126', '2025-04-06', 'debit', 310.40),
 ('ACC74126', '2025-04-10', 'debit', 250.00),
 ('ACC74126', '2025-04-12', 'credit', 3800.00);
+
+
+CREATE TABLE User (
+    id_user INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    nom VARCHAR(50),
+    prenom VARCHAR(50)
+);
+
+INSERT INTO User (username, password, nom, prenom)
+VALUES 
+('admin', 'admin123', 'Rakoto', 'Jean'),
+('user1', 'password', 'Rasoa', 'Marie'),
+('etu004280', 'etu004280', 'Etudiant', 'ETU004280');

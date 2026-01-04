@@ -1,6 +1,11 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="Model.Cheque" %>
+<%@ page import="Model.User" %>
+<%
+User user = (User) session.getAttribute("user");
+ArrayList<Cheque> liste = (ArrayList<Cheque>) request.getAttribute("listeCheques");
+%>
 
 <!DOCTYPE html>
 <html>
@@ -18,7 +23,7 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #fafafc 0%, #eaddf8 100%);
             min-height: 100vh;
-            padding: 40px 20px;
+            padding: 20px;
         }
 
         .container {
@@ -168,21 +173,21 @@
     </style>
 </head>
 <body>
-<jsp:include page="navbar.jsp" />
+
+<%@ include file="navbar.jsp" %>
 
 <div class="container">
     <div class="header">
-        <h1> ETU004280 - Gestion des Chèques</h1>
-        <a href="<%= request.getContextPath()%>/Cheque/form" class="btn-add">
-             Ajouter un chèque
-        </a>
+        <h1>Liste des Chèques</h1>
+        <% if (user != null) { %>
+            <a href="<%= request.getContextPath()%>/Cheque/form" class="btn-add">
+                Ajouter un chèque
+            </a>
+        <% } %>
     </div>
 
     <div class="table-container">
-        <%
-            ArrayList<Cheque> liste = (ArrayList<Cheque>) request.getAttribute("listeCheques");
-            if (liste != null && !liste.isEmpty()) {
-        %>
+        <% if (liste != null && !liste.isEmpty()) { %>
         <table>
             <thead>
                 <tr>
@@ -190,7 +195,9 @@
                     <th>Numéro</th>
                     <th>Compte</th>
                     <th>Date limite</th>
-                    <th>Actions</th>
+                    <% if (user != null) { %>
+                        <th>Actions</th>
+                    <% } %>
                 </tr>
             </thead>
             <tbody>
@@ -202,19 +209,21 @@
                     <td><%= c.getNumero_Cheque() %></td>
                     <td><%= c.getNumero_Compte() %></td>
                     <td><%= c.getDate_limite() %></td>
-                    <td>
-                        <div class="actions">
-                            <a href="<%= request.getContextPath()%>/Cheque/form/<%= c.getId_Cheque() %>" 
-                               class="btn btn-edit">
-                                 Modifier
-                            </a>
-                            <a href="<%= request.getContextPath() %>/Cheque/delete/<%= c.getId_Cheque() %>"
-                               class="btn btn-delete"
-                               onclick="return confirm('Voulez-vous vraiment supprimer ce chèque ?');">
-                                 Supprimer
-                            </a>
-                        </div>
-                    </td>
+                    <% if (user != null) { %>
+                        <td>
+                            <div class="actions">
+                                <a href="<%= request.getContextPath()%>/Cheque/form/<%= c.getId_Cheque() %>" 
+                                   class="btn btn-edit">
+                                    Modifier
+                                </a>
+                                <a href="<%= request.getContextPath() %>/Cheque/delete/<%= c.getId_Cheque() %>"
+                                   class="btn btn-delete"
+                                   onclick="return confirm('Voulez-vous vraiment supprimer ce chèque ?');">
+                                    Supprimer
+                                </a>
+                            </div>
+                        </td>
+                    <% } %>
                 </tr>
         <%
                 }
@@ -225,10 +234,12 @@
             } else {
         %>
         <div class="empty-state">
-            <p> Aucun chèque disponible</p>
-            <a href="<%= request.getContextPath()%>/Cheque/form" class="btn btn-edit">
-                Ajouter le premier chèque
-            </a>
+            <p>Aucun chèque disponible</p>
+            <% if (user != null) { %>
+                <a href="<%= request.getContextPath()%>/Cheque/form" class="btn btn-edit">
+                    Ajouter le premier chèque
+                </a>
+            <% } %>
         </div>
         <%
             }
