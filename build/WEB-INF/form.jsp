@@ -3,20 +3,28 @@
 <%@ page import="Model.Cheque" %>
 <%@ page import="Model.EtatCheque" %>
 <%@ page import="Model.ChequeEtat" %>
-<%@ page import="Model.User" %>
 <%@ page import="DAO.ChequeEtatDAO" %>
-
 <%
-User user = (User) session.getAttribute("user");
 ArrayList<EtatCheque> etat = (ArrayList<EtatCheque>) request.getAttribute("listeEtat");
 Cheque cheque = (Cheque) request.getAttribute("cheque");
 ArrayList<ChequeEtat> list =(ArrayList<ChequeEtat>)request.getAttribute("chequeEtat");
+
+Integer etatActuelId = null;
+if (cheque != null) {
+    try {
+        ChequeEtat chE = new ChequeEtat();
+        chE.setId_cheque(cheque.getId_Cheque());
+        ChequeEtatDAO.getChequeAvecIdEtat(chE);
+        etatActuelId = chE.getId_etat();
+    } catch (Exception e) {
+        // En cas d'erreur, on continue sans état sélectionné
+    }
+}
 %>
 
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
     <title><%= (cheque != null) ? "Modifier un chèque" : "Ajouter un chèque" %></title>
     <style>
         * {
@@ -27,7 +35,7 @@ ArrayList<ChequeEtat> list =(ArrayList<ChequeEtat>)request.getAttribute("chequeE
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #fafafc 0%, #eaddf8 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
         }
@@ -36,27 +44,48 @@ ArrayList<ChequeEtat> list =(ArrayList<ChequeEtat>)request.getAttribute("chequeE
             max-width: 1200px;
             margin: 0 auto;
             background: white;
-            border-radius: 20px;
+            border-radius: 15px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h2 {
+            font-size: 28px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .content {
             padding: 40px;
         }
 
-        h2 {
-            color: #333;
+        .form-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 30px;
             margin-bottom: 30px;
-            font-size: 24px;
+            border: 1px solid #e9ecef;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
         label {
-            display: block;
-            color: #333;
             font-weight: 600;
+            color: #495057;
+            display: block;
             margin-bottom: 8px;
             font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         input[type="text"],
@@ -65,10 +94,11 @@ ArrayList<ChequeEtat> list =(ArrayList<ChequeEtat>)request.getAttribute("chequeE
         select {
             width: 100%;
             padding: 12px 15px;
-            border: 2px solid #e0e0e0;
+            border: 2px solid #e9ecef;
             border-radius: 8px;
-            font-size: 14px;
+            font-size: 15px;
             transition: all 0.3s ease;
+            background: white;
         }
 
         input[type="text"]:focus,
@@ -80,251 +110,449 @@ ArrayList<ChequeEtat> list =(ArrayList<ChequeEtat>)request.getAttribute("chequeE
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
-        .btn {
-            padding: 12px 24px;
+        button, .btn {
+            padding: 12px 30px;
             border: none;
             border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
             cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
             transition: all 0.3s ease;
             text-decoration: none;
             display: inline-block;
+            text-align: center;
         }
 
-        .btn-primary {
+        button[type="submit"], .btn-primary {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
         }
 
-        .btn-primary:hover {
+        button[type="submit"]:hover, .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
         }
 
-        .btn-success {
-            background: #4CAF50;
-            color: white;
-        }
-
-        .btn-success:hover {
-            background: #45a049;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
-        }
-
-        .btn-danger {
-            background: #f44336;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #da190b;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4);
-        }
-
-        .btn-back {
-            background: #9e9e9e;
-            color: white;
-            margin-left: 10px;
-        }
-
-        .btn-back:hover {
-            background: #757575;
+        .section-title {
+            color: #2d3748;
+            font-size: 24px;
+            font-weight: 700;
+            margin: 40px 0 20px 0;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
         }
 
         table {
             width: 100%;
-            border-collapse: collapse;
-            margin-top: 30px;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 20px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
         }
 
         th {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
             padding: 15px;
             text-align: left;
             font-weight: 600;
             text-transform: uppercase;
             font-size: 12px;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
         }
 
         td {
-            padding: 12px 15px;
-            border-bottom: 1px solid #e0e0e0;
+            padding: 15px;
+            border-bottom: 1px solid #e9ecef;
+            vertical-align: middle;
         }
 
-        tr:hover {
-            background-color: #f5f5f5;
+        tbody tr {
+            transition: background-color 0.3s ease;
+        }
+
+        tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        td input[type="number"],
+        td input[type="date"],
+        td input[type="text"],
+        td select {
+            margin: 0;
+            padding: 8px 12px;
+            font-size: 14px;
+        }
+
+        .btn-delete {
+            background: linear-gradient(135deg, #f44336 0%, #e91e63 100%);
+            color: white;
+            padding: 8px 15px;
+            font-size: 13px;
+            box-shadow: 0 2px 10px rgba(244, 67, 54, 0.3);
+        }
+
+        .btn-delete:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(244, 67, 54, 0.5);
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            padding: 8px 15px;
+            font-size: 13px;
+            margin-bottom: 5px;
+            box-shadow: 0 2px 10px rgba(76, 175, 80, 0.3);
+        }
+
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.5);
+        }
+
+        .btn-add {
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            color: white;
+            padding: 8px 15px;
+            font-size: 13px;
+            box-shadow: 0 2px 10px rgba(33, 150, 243, 0.3);
+        }
+
+        .btn-add:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.5);
+        }
+
+        .btn-toggle {
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            color: white;
+            padding: 12px 25px;
+            font-size: 15px;
+            margin-top: 20px;
+            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.4);
+            width: 100%;
+        }
+
+        .btn-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(33, 150, 243, 0.6);
         }
 
         .actions-cell {
-            display: flex;
-            gap: 10px;
-            align-items: center;
+            text-align: center;
+            min-width: 120px;
         }
 
-        .button-group {
-            margin-top: 30px;
-            display: flex;
-            gap: 10px;
+        .add-form {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border: 2px dashed #667eea;
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .add-form.show {
+            display: block;
+        }
+
+        .add-form h3 {
+            color: #2196F3;
+            margin-bottom: 20px;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-danger {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 10px 5px;
+            }
+
+            button, .btn {
+                padding: 10px 15px;
+                font-size: 13px;
+            }
         }
     </style>
+    <script>
+        function toggleAddForm() {
+            var form = document.getElementById('addStateForm');
+            var btn = document.getElementById('toggleBtn');
+            if (form.classList.contains('show')) {
+                form.classList.remove('show');
+                btn.textContent = '➕ Ajouter un nouvel état';
+            } else {
+                form.classList.add('show');
+                btn.textContent = '❌ Annuler';
+            }
+        }
+    </script>
 </head>
 <body>
 
-<%@ include file="navbar.jsp" %>
-
 <div class="container">
-    <% if (cheque == null) { %>
-        <h2>Ajouter un chèque</h2>
+    <div class="header">
+        <h2><%= (cheque != null) ? "Modifier un chèque" : "Ajouter un chèque" %></h2>
+    </div>
 
-        <form action="<%= request.getContextPath() %>/Cheque/add" method="post">
-             <input type="hidden" name="id_cheque" value="<%= cheque.getId_Cheque() %>">
-            <div class="form-group">
-                <label>Numéro du chèque :</label>
-                <input type="text" name="numero" required>
-            </div>
-
-            <div class="form-group">
-                <label>Compte :</label>
-                <input type="text" name="compte" required>
-            </div>
-
-            <div class="form-group">
-                <label>Date limite :</label>
-                <input type="date" name="date_limite" required>
-            </div>
-            
-            <div class="form-group">
-                <label>État du chèque :</label>
-                <select name="id_etat">
-                    <% if (etat != null && !etat.isEmpty()) {
-                           for (EtatCheque e : etat) { %>
-                        <option value="<%= e.getId_etat() %>">
-                            <%= e.getNameEtat() %>
-                        </option>
-                    <%     } } %>
-                </select>
-            </div>
-
-            <div class="button-group">
-                <button type="submit" class="btn btn-primary">Ajouter</button>
-                <a href="<%= request.getContextPath() %>/Cheque/liste" class="btn btn-back">
-                    Retour à la liste
-                </a>
-            </div>
-        </form>
-
-    <% } else { %>
-        <h2>Modifier un chèque</h2>
-
-        <form action="<%= request.getContextPath() %>/Cheque/add" method="post">
-            
-            <input type="hidden" name="id_cheque" value="<%= cheque.getId_Cheque() %>">
-
-            <div class="form-group">
-                <label>Numéro du chèque :</label>
-                <input type="text" name="numero" value="<%= cheque.getNumero_Cheque() %>" required>
-            </div>
-
-            <div class="form-group">
-                <label>Compte :</label>
-                <input type="text" name="compte" value="<%= cheque.getNumero_Compte() %>" required>
-            </div>
-
-            <div class="form-group">
-                <label>Date limite :</label>
-                <input type="date" name="date_limite" value="<%= cheque.getDate_limite() %>" required>
-            </div>
-            <div class="form-group">
-                <label>État du chèque :</label>
-                <select name="id_etat">
-                    <% ChequeEtat Ch = new ChequeEtat(); %>
-                              
-                    <% if (etat != null && !etat.isEmpty()) {
-                           for (EtatCheque e : etat) { %>
-                             <%  Ch.setId_etat(e.getId_etat());
-                                 ChequeEtatDAO.getChequeAvecIdEtat(Ch);
-                               %>
-                        <option value="<%= e.getId_etat() %>" 
-                            <%= (e.getId_etat() == Ch.getId_etat() ? "selected" : "") %>>
-                            <%= e.getNameEtat() %>
-                        </option>
-                    <%     } } %>
-                </select>
-            </div>
-            
-            <div class="button-group">
-                <button type="submit" class="btn btn-primary">Modifier le chèque</button>
-                <a href="<%= request.getContextPath() %>/Cheque/liste" class="btn btn-back">
-                    Retour à la liste
-                </a>
-            </div>
-        </form>
-
-        <h2 style="margin-top: 40px;">États du chèque</h2>
-        
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>État</th>
-                    <th>Date</th>
-                    <th>Bénéficiaire</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-            <% if (list != null && !list.isEmpty()) {
-                   for (ChequeEtat e : list) { %>
-                <tr>
-                    <td><%= e.getId_ChequeEtat() %></td>
+    <div class="content">
+        <% if (cheque == null) { %>
+            <!-- FORMULAIRE D'AJOUT -->
+            <div class="form-card">
+                <form action="<%= request.getContextPath() %>/Cheque/add" method="post">
                     
-                    <form action="<%= request.getContextPath() %>/ChequeStatus/save/<%= e.getId_ChequeEtat() %>" 
-                          method="post">
-                        <input type="hidden" name="id_cheque" value="<%= e.getId_cheque() %>">
+                    <div class="form-group">
+                        <label>Numéro du chèque :</label>
+                        <input type="text" name="numero" placeholder="Ex: CH-2024-001" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Compte :</label>
+                        <input type="text" name="compte" placeholder="Ex: 123456789" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Date limite :</label>
+                        <input type="date" name="date_limite" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>État du chèque :</label>
+                        <select name="id_etat" required>
+                            <option value="">-- Sélectionner un état --</option>
+                            <% if (etat != null && !etat.isEmpty()) {
+                                   for (EtatCheque e : etat) {
+                            %>
+                                <option value="<%= e.getId_etat() %>">
+                                    <%= e.getNameEtat() %>
+                                </option>
+                            <%     }
+                               }  %>
+                        </select>
+                    </div>
+
+                    <button type="submit">Ajouter le chèque</button>
+                </form>
+            </div>
+
+        <% } else { %>
+            <!-- FORMULAIRE DE MODIFICATION -->
+            <div class="form-card">
+                <form action="<%= request.getContextPath() %>/Cheque/add" method="post">
+                    
+                    <input type="hidden" name="id_cheque" value="<%= cheque.getId_Cheque() %>">
+
+                    <div class="form-group">
+                        <label>Numéro du chèque :</label>
+                        <input type="text" name="numero" value="<%= cheque.getNumero_Cheque() %>" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Compte :</label>
+                        <input type="text" name="compte" value="<%= cheque.getNumero_Compte() %>" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Date limite :</label>
+                        <input type="date" name="date_limite" value="<%= cheque.getDate_limite() %>" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>État du chèque :</label>
+                        <select name="id_etat" required>
+                            <% if (etat != null && !etat.isEmpty()) {
+                                   for (EtatCheque e : etat) {
+                                       boolean selected = (etatActuelId != null && etatActuelId == e.getId_etat());
+                            %>
+                                <option value="<%= e.getId_etat() %>" <%= selected ? "selected" : "" %>>
+                                    <%= e.getNameEtat() %>
+                                </option>
+                            <%     }
+                               } else { %>
+                                <option value="">Aucun état disponible</option>
+                            <% } %>
+                        </select>
+                    </div>
+
+                    <button type="submit">Enregistrer les modifications</button>
+                </form>
+            </div>
+
+            <!-- SECTION TABLEAU POUR LES ÉTATS DU CHÈQUE -->
+            <h2 class="section-title">États du chèque</h2>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>État</th>
+                        <th>Date</th>
+                        <th>Bénéficiaire</th>
+                        <th style="text-align: center;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <% if (list != null && !list.isEmpty()) {
+                       for (ChequeEtat e : list) { %>
+                    <tr>
+                        <td><strong>#<%= e.getId_ChequeEtat() %></strong></td>
                         
-                        <td>
-                            <input type="number" name="id_etat" value="<%= e.getId_etat() %>" required>
-                        </td>
-                        
-                        <td>
-                            <input type="date" name="date_etat" value="<%= e.getDaty() %>" required>
-                        </td>
-                        
-                        <td>
-                            <input type="text" name="beneficiaire" value="<%= e.getBeneficiaire() != null ? e.getBeneficiaire() : "" %>">
-                        </td>
-                        
-                        <td>
-                            <div class="actions-cell">
-                                <button type="submit" class="btn btn-success">Enregistrer</button>
-                    </form>
+                        <form action="<%= request.getContextPath() %>/ChequeStatus/save/<%= e.getId_ChequeEtat() %>" 
+                              method="post">
+                            <input type="hidden" name="id_cheque" value="<%= e.getId_cheque() %>">
+                            <input type="hidden" name="id_ChequeEtat" value="<%= e.getId_ChequeEtat() %>">
+                            
+                            <td>
+                                <select name="id_etat" required>
+                                    <% if (etat != null && !etat.isEmpty()) {
+                                           for (EtatCheque et : etat) {
+                                               boolean selected = (e.getId_etat() == et.getId_etat());
+                                    %>
+                                        <option value="<%= et.getId_etat() %>" <%= selected ? "selected" : "" %>>
+                                            <%= et.getNameEtat() %>
+                                        </option>
+                                    <%     }
+                                       } %>
+                                </select>
+                            </td>
+                            
+                            <td>
+                                <input type="date" name="date_etat" value="<%= e.getDaty() %>" required>
+                            </td>
+                            
+                            <td>
+                                <input type="text" name="beneficiaire" value="<%= e.getBeneficiaire() %>" placeholder="Nom du bénéficiaire" required>
+                            </td>
+                            
+                            <td class="actions-cell">
+                                <button type="submit" class="btn-save">Sauvegarder</button>
+                        </form>
+                                <br>
                                 <form action="<%= request.getContextPath() %>/ChequeStatus/delete/<%= e.getId_ChequeEtat() %>" 
-                                      method="get" style="display: inline;">
+                                      method="get">
                                     <input type="hidden" name="id_cheque" value="<%= e.getId_cheque() %>">
-                                    <button type="submit" class="btn btn-danger" 
+                                    <button type="submit" class="btn-delete" 
                                             onclick="return confirm('Voulez-vous vraiment supprimer cet état ?');">
                                         Supprimer
                                     </button>
                                 </form>
-                            </div>
+                            </td>
+                    </tr>
+                <%   } 
+                   } else { %>
+                    <tr>
+                        <td colspan="5" class="empty-state">
+                            Aucun état disponible pour ce chèque.
                         </td>
-                </tr>
-            <%   } 
-               } else { %>
-                <tr>
-                    <td colspan="5" style="text-align: center; padding: 30px; color: #999;">
-                        Aucun état disponible pour ce chèque
-                    </td>
-                </tr>
-            <% } %>
-            </tbody>
-        </table>
-    <% } %>
+                    </tr>
+                <% } %>
+                </tbody>
+            </table>
+
+            <!-- BOUTON POUR AFFICHER/MASQUER LE FORMULAIRE D'AJOUT -->
+            <button type="button" class="btn-toggle" id="toggleBtn" onclick="toggleAddForm()">
+                ➕ Ajouter un nouvel état
+            </button>
+
+            <!-- FORMULAIRE D'AJOUT D'UN NOUVEL ÉTAT -->
+            <div class="add-form" id="addStateForm">
+                <h3>➕ Ajouter un nouvel état pour ce chèque</h3>
+                <form action="<%= request.getContextPath() %>/ChequeStatus/add" method="post">
+                    <input type="hidden" name="id_cheque" value="<%= cheque.getId_Cheque() %>">
+                    
+                    <div class="form-group">
+                        <label>État :</label>
+                        <select name="id_etat" required>
+                            <option value="">-- Sélectionner un état --</option>
+                            <% if (etat != null && !etat.isEmpty()) {
+                                   for (EtatCheque et : etat) {
+                            %>
+                                <option value="<%= et.getId_etat() %>">
+                                    <%= et.getNameEtat() %>
+                                </option>
+                            <%     }
+                               } %>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Date de l'état :</label>
+                        <input type="date" name="date_etat" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Bénéficiaire :</label>
+                        <input type="text" name="beneficiaire" placeholder="Nom du bénéficiaire" required>
+                    </div>
+
+                    <button type="submit" class="btn-add">✅ Ajouter cet état</button>
+                </form>
+            </div>
+
+        <% } %>
+    </div>
 </div>
 
 </body>
