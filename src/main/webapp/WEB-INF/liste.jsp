@@ -179,11 +179,10 @@ ArrayList<Cheque> liste = (ArrayList<Cheque>) request.getAttribute("listeCheques
 <div class="container">
     <div class="header">
         <h1>Liste des Chèques</h1>
-        <% if (user != null) { %>
+       
             <a href="<%= request.getContextPath()%>/Cheque/form" class="btn-add">
                 Ajouter un chèque
             </a>
-        <% } %>
     </div>
 
     <div class="table-container">
@@ -195,9 +194,7 @@ ArrayList<Cheque> liste = (ArrayList<Cheque>) request.getAttribute("listeCheques
                     <th>Numéro</th>
                     <th>Compte</th>
                     <th>Date limite</th>
-                    <% if (user != null) { %>
                         <th>Actions</th>
-                    <% } %>
                 </tr>
             </thead>
             <tbody>
@@ -209,7 +206,6 @@ ArrayList<Cheque> liste = (ArrayList<Cheque>) request.getAttribute("listeCheques
                     <td><%= c.getNumero_Cheque() %></td>
                     <td><%= c.getNumero_Compte() %></td>
                     <td><%= c.getDate_limite() %></td>
-                    <% if (user != null) { %>
                         <td>
                             <div class="actions">
                                 <a href="<%= request.getContextPath()%>/Cheque/form/<%= c.getId_Cheque() %>" 
@@ -223,7 +219,7 @@ ArrayList<Cheque> liste = (ArrayList<Cheque>) request.getAttribute("listeCheques
                                 </a>
                             </div>
                         </td>
-                    <% } %>
+                 
                 </tr>
         <%
                 }

@@ -33,9 +33,9 @@ if (cheque != null) {
             box-sizing: border-box;
         }
 
-        body {
+         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #fafafc 0%, #eaddf8 100%);
             min-height: 100vh;
             padding: 20px;
         }
@@ -76,6 +76,10 @@ if (cheque != null) {
 
         .form-group {
             margin-bottom: 25px;
+        }
+
+        .form-group.hidden {
+            display: none;
         }
 
         label {
@@ -294,29 +298,6 @@ if (cheque != null) {
             font-style: italic;
         }
 
-        .badge {
-            display: inline-block;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .badge-success {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .badge-warning {
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        .badge-danger {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
         @media (max-width: 768px) {
             .content {
                 padding: 20px;
@@ -348,6 +329,36 @@ if (cheque != null) {
                 btn.textContent = '❌ Annuler';
             }
         }
+
+        function toggleBeneficiaire(selectElement, beneficiaireId) {
+            var selectedText = selectElement.options[selectElement.selectedIndex].text.toLowerCase();
+            var beneficiaireDiv = document.getElementById(beneficiaireId);
+            var beneficiaireInput = beneficiaireDiv.querySelector('input[name="beneficiaire"]');
+            
+            if (selectedText.includes('encaisser') || selectedText.includes('encaissé')) {
+                beneficiaireDiv.classList.remove('hidden');
+                beneficiaireInput.required = true;
+            } else {
+                beneficiaireDiv.classList.add('hidden');
+                beneficiaireInput.required = false;
+                beneficiaireInput.value = '';
+            }
+        }
+
+        // Initialiser l'affichage au chargement de la page
+        window.onload = function() {
+            // Pour le formulaire d'ajout
+            var addSelect = document.querySelector('#addStateForm select[name="id_etat"]');
+            if (addSelect) {
+                toggleBeneficiaire(addSelect, 'beneficiaire_add');
+            }
+
+            // Pour les lignes du tableau
+            var tableSelects = document.querySelectorAll('table select[name="id_etat"]');
+            tableSelects.forEach(function(select, index) {
+                toggleBeneficiaire(select, 'beneficiaire_row_' + index);
+            });
+        };
     </script>
 </head>
 <body>
@@ -455,7 +466,22 @@ if (cheque != null) {
                 </thead>
                 <tbody>
                 <% if (list != null && !list.isEmpty()) {
-                       for (ChequeEtat e : list) { %>
+                       int rowIndex = 0;
+                       for (ChequeEtat e : list) { 
+                           String beneficiaireId = "beneficiaire_row_" + rowIndex;
+                           // Vérifier si l'état actuel est "encaisser"
+                           String etatName = "";
+                           boolean isEncaisser = false;
+                           if (etat != null) {
+                               for (EtatCheque et : etat) {
+                                   if (et.getId_etat() == e.getId_etat()) {
+                                       etatName = et.getNameEtat().toLowerCase();
+                                       isEncaisser = etatName.contains("encaisser") || etatName.contains("encaissé");
+                                       break;
+                                   }
+                               }
+                           }
+                %>
                     <tr>
                         <td><strong>#<%= e.getId_ChequeEtat() %></strong></td>
                         
@@ -465,7 +491,7 @@ if (cheque != null) {
                             <input type="hidden" name="id_ChequeEtat" value="<%= e.getId_ChequeEtat() %>">
                             
                             <td>
-                                <select name="id_etat" required>
+                                <select name="id_etat" required onchange="toggleBeneficiaire(this, '<%= beneficiaireId %>')">
                                     <% if (etat != null && !etat.isEmpty()) {
                                            for (EtatCheque et : etat) {
                                                boolean selected = (e.getId_etat() == et.getId_etat());
@@ -482,8 +508,8 @@ if (cheque != null) {
                                 <input type="date" name="date_etat" value="<%= e.getDaty() %>" required>
                             </td>
                             
-                            <td>
-                                <input type="text" name="beneficiaire" value="<%= e.getBeneficiaire() %>" placeholder="Nom du bénéficiaire" required>
+                            <td id="<%= beneficiaireId %>" class="<%= !isEncaisser ? "hidden" : "" %>">
+                                <input type="text" name="beneficiaire" value="<%= e.getBeneficiaire() != null ? e.getBeneficiaire() : "" %>" placeholder="Nom du bénéficiaire" <%= isEncaisser ? "required" : "" %>>
                             </td>
                             
                             <td class="actions-cell">
@@ -500,7 +526,9 @@ if (cheque != null) {
                                 </form>
                             </td>
                     </tr>
-                <%   } 
+                <%   
+                       rowIndex++;
+                       } 
                    } else { %>
                     <tr>
                         <td colspan="5" class="empty-state">
@@ -524,7 +552,7 @@ if (cheque != null) {
                     
                     <div class="form-group">
                         <label>État :</label>
-                        <select name="id_etat" required>
+                        <select name="id_etat" required onchange="toggleBeneficiaire(this, 'beneficiaire_add')">
                             <option value="">-- Sélectionner un état --</option>
                             <% if (etat != null && !etat.isEmpty()) {
                                    for (EtatCheque et : etat) {
@@ -542,9 +570,9 @@ if (cheque != null) {
                         <input type="date" name="date_etat" required>
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group hidden" id="beneficiaire_add">
                         <label>Bénéficiaire :</label>
-                        <input type="text" name="beneficiaire" placeholder="Nom du bénéficiaire" required>
+                        <input type="text" name="beneficiaire" placeholder="Nom du bénéficiaire">
                     </div>
 
                     <button type="submit" class="btn-add">✅ Ajouter cet état</button>

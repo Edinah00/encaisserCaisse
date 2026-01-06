@@ -5,6 +5,7 @@ User navUser = (User) session.getAttribute("user");
 %>
 
 <style>
+    
     .navbar {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
@@ -91,11 +92,11 @@ User navUser = (User) session.getAttribute("user");
 </style>
 
 <div class="navbar">
-    <div class="navbar-brand">Gestion des Chèques</div>
+    <div class="navbar-brand">Gestion des Cheques</div>
     <div class="navbar-menu">
         <a href="<%= request.getContextPath() %>/Encaissement">Encaissement</a>
     <a href="<%= request.getContextPath() %>/Cheque/form">Formulaire</a>
-    <a href="<%= request.getContextPath() %>/Mouvement">Mouvements</a>
+    <a href="<%= request.getContextPath() %>/Mouvement/liste">Mouvements</a>
     <a href="<%= request.getContextPath() %>/Cheque/liste">Cheque</a>
     </div>
     <div class="navbar-user">
@@ -104,7 +105,7 @@ User navUser = (User) session.getAttribute("user");
                 <strong><%= navUser.getPrenom() %> <%= navUser.getNom() %></strong>
             </div>
             <a href="<%= request.getContextPath() %>/login?action=logout" class="btn-logout">
-                Déconnexion
+                Deconnexion
             </a>
         <% } else { %>
             <a href="<%= request.getContextPath() %>/login" class="btn-login">
