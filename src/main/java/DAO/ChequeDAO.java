@@ -214,7 +214,6 @@ public static void findById(Cheque a, Connection conn) throws Exception {
                 System.out.println("Cheque mis à jour avec succès !");
             }
             
-            
         } catch (SQLException e) {
           
                     System.err.println("mis a jour non effectue : " + e.getMessage());

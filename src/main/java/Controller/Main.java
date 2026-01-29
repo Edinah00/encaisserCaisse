@@ -4,13 +4,13 @@ import java.sql.Connection;
 import java.util.ArrayList;
 
 import DAO.ChequeDAO;
+import DAO.Service.Service;
 import Exception.ChequeEncaisséVoléException;
 import Exception.DateNotValide;
 import Exception.MontantInsuffisantException;
 import Model.ConnectionDB;
 import Model.FormEncaissement;
 import Model.Mouvement;
-import Service.Service;
 import Exception.ChequeNotFoundException;
 import Model.Cheque;
 

@@ -1,9 +1,9 @@
 package Servlet;
-import Service.Service;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Date;
 
+import DAO.Service.Service;
 import Exception.ChequeEncaisséVoléException;
 import Exception.ChequeNotFoundException;
 import Exception.DateNotValide;
@@ -36,7 +36,7 @@ public class EncaissementServlet extends HttpServlet {
         Service EncaissementService = new Service();
         EncaissementService.encaisserCheque(form);
 
-        req.setAttribute("success", "✅ Chèque encaissé avec succès !");
+        req.setAttribute("success", " Chèque encaissé avec succès !");
     } catch (ChequeEncaisséVoléException e) {
         req.setAttribute("error", "Chèque " + e.getNumero_Cheque() + " est " + e.getEtat());
     } catch (ChequeNotFoundException e) {
@@ -58,5 +58,4 @@ protected void doGet(HttpServletRequest req, HttpServletResponse res)
     // Affiche simplement le formulaire JSP
     req.getRequestDispatcher("/WEB-INF/encaissement.jsp").forward(req, res);
 }
-
 }

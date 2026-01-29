@@ -5,7 +5,7 @@
 <html>
 <head>
     <title>Liste des Mouvements</title>
-    <style>
+    <!-- <style>
         * {
             margin: 0;
             padding: 0;
@@ -256,7 +256,7 @@
                 font-size: 13px;
             }
         }
-    </style>
+    </style> -->
 </head>
 <body>
     <jsp:include page="navbar.jsp" />

@@ -1,4 +1,4 @@
-package Service;
+package DAO.Service;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.Date;
@@ -223,5 +223,16 @@ public static void Modify(Cheque a, ChequeEtat e) throws Exception{
             conn.close();
         }
     }
+}
+public static BigDecimal getSolde(String numero_compte) throws Exception {
+    BigDecimal sommeDebit = MouvementDAO.getTotalDebit(numero_compte);
+    BigDecimal sommeCredit = MouvementDAO.getTotalCredit(numero_compte);
+    // solde = crédit - débit
+    return sommeCredit.subtract(sommeDebit);
+
+}
+public static void main(String[] args) throws Exception {
+    BigDecimal solde = getSolde("ACC98765");
+    System.out.println(solde);
 }
 }

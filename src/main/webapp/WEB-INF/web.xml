@@ -88,4 +88,19 @@
     <filter-name>AuthenticationFilter</filter-name>
     <url-pattern>/Encaissement</url-pattern>
 </filter-mapping>
+<!-- Servlet Encaissement -->
+<servlet>
+    <servlet-name>CompteServlet</servlet-name>
+    <servlet-class>Servlet.CompteServlet</servlet-class>
+</servlet>
+<servlet-mapping>
+    <servlet-name>CompteServlet</servlet-name>
+    <url-pattern>/compte/*</url-pattern>
+</servlet-mapping>
+
+<!-- Filter protège la route -->
+<filter-mapping>
+    <filter-name>AuthenticationFilter</filter-name>
+    <url-pattern>/compte/*</url-pattern>
+</filter-mapping>
 </web-app>

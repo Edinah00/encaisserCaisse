@@ -31,12 +31,10 @@ public class LoginServlet extends HttpServlet {
         String password = req.getParameter("password");
 
         try {
-            User user = UserDAO.authenticate(username, password);
-
-            if (user != null) {
+            User user = UserDAO.authenticate(username, password);           if (user != null) {
                 HttpSession session = req.getSession(true);
                 session.setAttribute("user", user);
-                session.setMaxInactiveInterval(30 * 60); // 30 minutes
+                session.setMaxInactiveInterval(30 * 60); // 30 minitra
 
                 res.sendRedirect(req.getContextPath() + "/Cheque/liste");
             } else {

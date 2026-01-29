@@ -4,10 +4,11 @@ import java.io.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import Service.Service;
+
 import DAO.ChequeDAO;
 import DAO.ChequeEtatDAO;
 import DAO.EtatChequeDAO;
+import DAO.Service.Service;
 import Model.Cheque;
 import Model.ChequeEtat;
 import Model.EtatCheque;
