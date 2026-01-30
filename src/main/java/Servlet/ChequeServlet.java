@@ -8,10 +8,10 @@ import java.util.List;
 import DAO.ChequeDAO;
 import DAO.ChequeEtatDAO;
 import DAO.EtatChequeDAO;
-import DAO.Service.Service;
 import Model.Cheque;
 import Model.ChequeEtat;
 import Model.EtatCheque;
+import Service.Service;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 

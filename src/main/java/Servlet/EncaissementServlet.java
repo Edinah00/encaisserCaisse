@@ -3,12 +3,12 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Date;
 
-import DAO.Service.Service;
 import Exception.ChequeEncaisséVoléException;
 import Exception.ChequeNotFoundException;
 import Exception.DateNotValide;
 import Exception.MontantInsuffisantException;
 import Model.FormEncaissement;
+import Service.Service;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;

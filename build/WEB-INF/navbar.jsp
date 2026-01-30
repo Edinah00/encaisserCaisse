@@ -92,7 +92,7 @@ User navUser = (User) session.getAttribute("user");
 </style>
 
 <div class="navbar">
-    <div class="navbar-brand">Gestion des Cheques </div>
+    <div class="navbar-brand">Gestion des Cheques ETU004280</div>
     <div class="navbar-menu">
         <a href="<%= request.getContextPath() %>/Encaissement">Encaissement</a>
     <a href="<%= request.getContextPath() %>/Cheque/form">Formulaire</a>
